@@ -1,14 +1,36 @@
 console.log("------------Automation Started---------------")
 
-const puppeteer = require('puppeteer');
-const axios = require('axios');
+import puppeteer from 'puppeteer-core';
+import GoLogin from 'gologin';
+import axios from 'axios';
+
+const { connect } = puppeteer;
+
 ////Defining Function////
 async function getURL() {
     ////Open Target URL////
     try {
-        const browser = await puppeteer.launch({
-            headless: false,
+        const GL = new GoLogin({
+            token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NGEyYTdiYzBmZDBlODQwOWY5NDA3MjYiLCJ0eXBlIjoiZGV2Iiwiand0aWQiOiI2NGEyYTdjZmM4MTA2NzNkNTI5YTFlOWEifQ.pmY21qnfDengTNnYGV2ysuILmwUOxPj-7JGY9JqrqtA',
+            profile_id: '64a2b7b4b42a8c1e7a05d293',
         });
+
+        const { status, wsUrl } = await GL.start().catch((e) => {
+            console.trace(e);
+
+            return { status: 'failure' };
+        });
+
+        if (status !== 'success') {
+            console.log('Invalid status');
+            return;
+        }
+
+        const browser = await connect({
+            browserWSEndpoint: wsUrl.toString(),
+            ignoreHTTPSErrors: true,
+        });
+
         const page = await browser.newPage();
         await page.goto(' https://accounts.google.com/EmbeddedSetup/createaccount?flowName=EmbeddedSetupAndroid');
         const url = page.url();
@@ -57,7 +79,7 @@ async function getURL() {
             console.log('Element not found');
         }
         ////Selecting the third Option and type the username////
-        await new Promise((resolve, reject) => setTimeout(() => resolve(), 2000));
+        await new Promise((resolve, reject) => setTimeout(() => resolve(), 5000));
         const options = await page.$$('.enBDyd');
         const lastOption = options[2];
         await lastOption.click();
@@ -98,6 +120,14 @@ async function getURL() {
         await page.waitForSelector('button[class="VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-k8QpJ VfPpkd-LgbsSe-OWXEXe-dgl2Hf nCP5yc AjY5Oe DuMIQc LQeN7 qIypjc TrZEUc lw1w4b"]')
         try {
             await page.click('button[class="VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-k8QpJ VfPpkd-LgbsSe-OWXEXe-dgl2Hf nCP5yc AjY5Oe DuMIQc LQeN7 qIypjc TrZEUc lw1w4b"]')
+        } catch (error) {
+            console.error(error);
+        }
+        try {
+            await new Promise((resolve, reject) => setTimeout(() => resolve(), 5000));
+            const confirmButtons = await page.$$('div[class="U26fgb O0WRkf oG5Srb C0oVfc kHssdc lw1w4b M9Bg4d"]');
+            const confirmButton = confirmButtons[2];
+            await confirmButton.click();
         } catch (error) {
             console.error(error);
         }
