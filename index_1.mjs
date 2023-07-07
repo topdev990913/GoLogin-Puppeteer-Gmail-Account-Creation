@@ -57,7 +57,7 @@ async function getURL() {
         await page.keyboard.press('Enter')
         ////Inserting Birthday and Gender////
         await page.waitForSelector('#gender')
-        await new Promise((resolve, reject) => setTimeout(() => resolve(), 2000));
+        await new Promise((resolve, reject) => setTimeout(() => resolve(), 5000));
         await page.click('#day')
         await page.type('#day', response.data.day)
         await page.click('#month')
